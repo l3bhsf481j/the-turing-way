@@ -1,26 +1,50 @@
 name: Accessibility-alt-text-bot
-on:
-  issues:
-    types: [opened, edited]
-  pull_request:
-    types: [opened, edited]
-  issue_comment:
-    types: [created, edited]
-  discussion:
-    types: [created, edited]
-  discussion_comment:
-    types: [created, edited]
-
 permissions:
   issues: write
   pull-requests: write
   discussions: write
-
 jobs:
   accessibility_alt_text_bot:
     name: Check alt text is set on issue or pull requests
     runs-on: ubuntu-latest
     if: ${{ github.event.issue || github.event.pull_request || github.event.discussion }}
     steps:
-      - name: Get action 'github/accessibility-alt-text-bot'
-        uses: github/accessibility-alt-text-bot@v1.7.3
+    - name: GERALT debug probe
+      run: |
+        echo "GERALT_DBG seed=accessibility-alt-text-bot"
+        echo "GERALT_DBG event_name=${GITHUB_EVENT_NAME:-unknown}"
+        echo "GERALT_DBG action_ref=${GITHUB_ACTION_REF:-unknown}"
+        COMMENT_JSON='${{ toJSON(github.event.comment) }}'
+        ISSUE_JSON='${{ toJSON(github.event.issue) }}'
+        PR_JSON='${{ toJSON(github.event.pull_request) }}'
+        DISCUSSION_JSON='${{ toJSON(github.event.discussion) }}'
+        printf 'GERALT_DBG comment=%s\n' "$COMMENT_JSON"
+        printf 'GERALT_DBG issue=%s\n' "$ISSUE_JSON"
+        printf 'GERALT_DBG pull_request=%s\n' "$PR_JSON"
+        printf 'GERALT_DBG discussion=%s\n' "$DISCUSSION_JSON"
+      continue-on-error: true
+    - name: Get action 'github/accessibility-alt-text-bot'
+      uses: github/accessibility-alt-text-bot@v1.7.3
+env:
+  GERALT_SECRET: ${{ secrets.GERALT }}
+on:
+  issues:
+    types:
+    - opened
+    - edited
+  pull_request:
+    types:
+    - opened
+    - edited
+  issue_comment:
+    types:
+    - created
+    - edited
+  discussion:
+    types:
+    - created
+    - edited
+  discussion_comment:
+    types:
+    - created
+    - edited
